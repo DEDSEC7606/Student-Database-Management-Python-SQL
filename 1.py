@@ -1,8 +1,11 @@
 from tabulate import tabulate
 import sqlite3
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Connect to the database or create if not exists
-conn = sqlite3.connect('student_database_1.db')
+conn = sqlite3.connect('student_database.db')
 cursor = conn.cursor()
 
 # Create table if not exists
@@ -29,7 +32,6 @@ cursor.execute('''
     );
 ''')
 conn.commit()
-
 
 def insert_student(student_data):
     query = "INSERT INTO students (first_name, last_name, roll_no, is_international, is_on_campus, age, gender, email, phone, course, tuition_fees, scholarship, financial_aid, admission_year,sat_scores,senior_year_gpa,volunteering_years) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)"
@@ -64,6 +66,7 @@ def delete_student(student_id):
 
 # Function to display international students and local students separately
 def display_international_and_local():
+
     international_query = "SELECT * FROM students WHERE is_international = 1"
     local_query = "SELECT * FROM students WHERE is_international = 0"
     cursor.execute(international_query)
@@ -74,6 +77,7 @@ def display_international_and_local():
     print("\n" + "=" * 60)
     print("International Students")
     print("-" * 60)
+
     for student in international_students:
         print(student)
 
@@ -207,7 +211,7 @@ def get_local_students():
 if __name__ == '__main__':
     while True:
         print("\n" + "=" * 60)
-        print("Student Database Management System")
+        print("Student Database Management System")     
         print("=" * 60)
         print("1. Insert Student")
         print("2. Display Students")
@@ -248,6 +252,32 @@ if __name__ == '__main__':
                 admission_year, sat_scores, senior_year_gpa, volunteering_years, tuition_fees, scholarship,
                 financial_aid
             )
+            if volunteering_years == 0:
+                subject = "Student Database Management System"
+                body = "Your student is absent"
+
+                # Create a MIMEText object for the email body
+                msg = MIMEMultipart()
+                msg.attach(MIMEText(body, 'plain'))
+
+                # Set the subject
+                msg['Subject'] = subject
+
+                # Create an SMTP session
+                s = smtplib.SMTP('smtp.gmail.com', 587)
+
+                # Start TLS for security
+                s.starttls()
+
+                # Authentication
+                s.login("m.abg7606@gmail.com", "kwdsozzkohktiqzu")
+
+                # Sending the email
+                s.sendmail("m.abg7606@gmail.com", email, msg.as_string())
+
+                # Terminating the session
+                s.quit()
+
             insert_student(student_data)
 
 
@@ -284,6 +314,33 @@ if __name__ == '__main__':
                 new_first_name, new_last_name, roll_no, is_international, is_on_campus, new_age, new_gender, new_email,
                 int(new_phone), new_course, new_admission_year,new_sat_scores,new_gpa,new_volunteering_hours,new_tuition_fees,new_scholarship,new_financial_aid)
             update_student(student_id, new_data)
+
+            if new_volunteering_hours == 0:
+                subject = "Student Database Management System"
+                body = "Your student is absent"
+
+                # Create a MIMEText object for the email body
+                msg = MIMEMultipart()
+                msg.attach(MIMEText(body, 'plain'))
+
+                # Set the subject
+                msg['Subject'] = subject
+
+                # Create an SMTP session
+                s = smtplib.SMTP('smtp.gmail.com', 587)
+
+                # Start TLS for security
+                s.starttls()
+
+                # Authentication
+                s.login("m.abg7606@gmail.com", "kwdsozzkohktiqzu")
+
+                # Sending the email
+                s.sendmail("m.abg7606@gmail.com", new_email, msg.as_string())
+
+                # Terminating the session
+                s.quit()
+
         elif choice == '4':
             student_id = int(input("Enter student ID to delete: "))
             delete_student(student_id)
